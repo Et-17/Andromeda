@@ -47,6 +47,18 @@ impl BinaryFile {
                 None => return None,
             });
         }
-        return Some(read);
+        Some(read)
+    }
+
+    pub fn read_num(&mut self, bits: i32) -> Option<u32> {
+        let mut read: u32 = 0;
+        for _ in 0..bits {
+            read *= 2;
+            read += match self.read_bit() {
+                Some(bit) => bit as u32,
+                None => return None,
+            };
+        }
+        Some(read)
     }
 }
