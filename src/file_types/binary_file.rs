@@ -38,4 +38,15 @@ impl BinaryFile {
             },
         }
     }
+
+    pub fn read_vec(&mut self, bits: i32) -> Option<Vec<bool>> {
+        let mut read: Vec<bool> = Vec::new();
+        for _ in 0..bits {
+            read.push(match self.read_bit() {
+                Some(bit) => bit,
+                None => return None,
+            });
+        }
+        return Some(read);
+    }
 }

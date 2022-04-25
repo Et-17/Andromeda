@@ -15,20 +15,20 @@ mod tests {
     }
 
     #[test]
-    fn binary_file_reading() {
-        let bin_f_r = BinaryFile::open_file("sample_files\\valid_path");
-        assert!(bin_f_r.is_ok());
-        let mut bin_f = bin_f_r.unwrap();
-        assert!(!bin_f.read_bit().unwrap());
-        assert!(bin_f.read_bit().unwrap());
-        assert!(bin_f.read_bit().unwrap());
-        assert!(bin_f.read_bit().unwrap());
-        assert!(!bin_f.read_bit().unwrap());
-        assert!(bin_f.read_bit().unwrap());
-        assert!(!bin_f.read_bit().unwrap());
-        assert!(!bin_f.read_bit().unwrap());
-        assert!(!bin_f.read_bit().unwrap());
-        assert!(bin_f.read_bit().unwrap());
-        assert!(bin_f.read_bit().unwrap());
+    fn binary_file_bit_reading() {
+        let mut bin_f = BinaryFile::open_file("sample_files\\valid_path").unwrap();
+        let correct_bits = vec![false, true, true, true, false, true,
+            false, false, false, true, true];
+        for bit in correct_bits {
+            assert_eq!(bin_f.read_bit().unwrap(), bit);
+        }
+    }
+
+    #[test]
+    fn binary_file_vec_reading() {
+        let mut bin_f = BinaryFile::open_file("sample_files\\valid_path").unwrap();
+        let correct_bits = vec![false, true, true, true, false, true,
+            false, false, false, true, true];
+        assert_eq!(bin_f.read_vec(11).unwrap(), correct_bits);
     }
 }
