@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::Read;
 use std::io::Bytes;
+use crate::iters::Bits;
 use std::collections::VecDeque;
 
 pub struct BinaryFile {
@@ -60,5 +61,9 @@ impl BinaryFile {
             };
         }
         Some(read)
+    }
+
+    pub fn bits(self) -> Bits {
+        Bits::new(self)
     }
 }
