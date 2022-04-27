@@ -4,11 +4,14 @@
 
 use crate::file_types::binary_file::BinaryFile;
 
+///A bit based file iterator
 pub struct Bits {
+    ///The internal file being iterated
     iterated_file: BinaryFile,
 }
 
 impl Bits {
+    ///Creates a new Bits iterator from a BinaryFile
     pub fn new(bf: BinaryFile) -> Bits {
         Bits { iterated_file: bf }
     }

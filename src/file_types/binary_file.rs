@@ -8,12 +8,17 @@ use std::fs::File;
 use std::io::Bytes;
 use std::io::Read;
 
+///A special file manager for bit-by-bit reading
 pub struct BinaryFile {
+    ///An iterator over the bytes of the file being read
     file_iterator: Bytes<File>,
+    ///The bufferred bits
+    ///***TODO: Explain why buffering is needed***
     buffer: VecDeque<bool>,
 }
 
 impl BinaryFile {
+    ///Opens a file and creates a `BinaryFile` to read it
     pub fn open_file(path: &str) -> std::io::Result<BinaryFile> {
         Ok(BinaryFile {
             file_iterator: File::open(path)?.bytes(),
@@ -21,6 +26,8 @@ impl BinaryFile {
         })
     }
 
+    ///Buffers a new byte
+    /// ***TODO: Explain usecases***
     pub fn load_byte(&mut self) -> Option<u8> {
         //Read the next byte on the file being read
         let next_byte = match self.file_iterator.next() {
@@ -35,6 +42,8 @@ impl BinaryFile {
         Some(next_byte)
     }
 
+    ///Reads a bit from the file, automatically handling the buffering
+    /// of new bytes
     pub fn read_bit(&mut self) -> Option<bool> {
         //Find the next buffered bit
         match self.buffer.pop_front() {
@@ -48,6 +57,7 @@ impl BinaryFile {
         }
     }
 
+    /// Reads an aribtrary number of bits into a vector
     pub fn read_vec(&mut self, bits: i32) -> Option<Vec<bool>> {
         let mut read: Vec<bool> = Vec::new();
         //Read required bits
@@ -61,6 +71,7 @@ impl BinaryFile {
         Some(read)
     }
 
+    /// Reads an arbitrary number of bits into an integer
     pub fn read_num(&mut self, bits: i32) -> Option<u32> {
         let mut read: u32 = 0;
         //Read required bits
@@ -76,6 +87,7 @@ impl BinaryFile {
         Some(read)
     }
 
+    /// Creates a `Bits` iterator of the file
     pub fn bits(self) -> Bits {
         Bits::new(self)
     }
