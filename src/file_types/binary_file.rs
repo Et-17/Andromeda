@@ -8,13 +8,52 @@ use std::fs::File;
 use std::io::Bytes;
 use std::io::Read;
 
-///A special file manager for bit-by-bit reading
+/// A special file manager for bit-by-bit reading. It wraps an [`Bytes`]
+/// iterator of the file it's reading, and uses a [`VecDeque`] to buffer
+/// the bits from the read byte, allowing seamless bit based reading.
+/// # Examples
+/// ## Opening a file
+/// You can open a file very simply
+/// ```
+/// # use andromeda::BinaryFile;
+/// # let valid_path = "sample_files\\valid_path";
+/// let bin_f = BinaryFile::open_file(valid_path);
+/// assert!(bin_f.is_ok());
+/// ```
+/// However, if you try to open an invalid file, it will return an error
+/// ```
+/// # use andromeda::BinaryFile;
+/// # let invalid_path = "sample_files\\invalid_path";
+/// let inv_bin_f = BinaryFile::open_file(invalid_path);
+/// assert!(inv_bin_f.is_err());
+/// ```
+/// ## Reading a file
+/// Once the file is open, you can immediately start reading bits from
+/// the newly opened file
+/// ```
+/// # use andromeda::BinaryFile;
+/// # let valid_path = "sample_files\\valid_path";
+/// // open the BinaryFile
+/// let mut bin_f = BinaryFile::open_file(valid_path).unwrap();
+/// // read a bit
+/// let next_bit = bin_f.read_bit().unwrap();
+/// ```
+/// You can detect EOF just like you would detect an iterator running
+/// out of things to read: `read_bit()` returns a `Box<bool>`,
+/// which will contain [`None`] when it reaches EOF.
+/// ```
+/// # use andromeda::BinaryFile;
+/// # let empty_file = "sample_files\\empty_file";
+/// // open the BinaryFile
+/// let mut bin_f = BinaryFile::open_file(empty_file).unwrap();
+/// // read a bit, and verify eof
+/// assert!(bin_f.read_bit().is_none());
+/// ```
 pub struct BinaryFile {
     ///An iterator over the bytes of the file being read
     file_iterator: Bytes<File>,
-    ///The bufferred bits
-    ///***TODO: Explain why buffering is needed***
-    buffer: VecDeque<bool>,
+    ///The bufferred bits. Direct access of this is not recommended.
+    pub buffer: VecDeque<bool>,
 }
 
 impl BinaryFile {
@@ -26,8 +65,10 @@ impl BinaryFile {
         })
     }
 
-    ///Buffers a new byte
-    /// ***TODO: Explain usecases***
+    /// Buffers a new byte. Usually, you do not need to call this method
+    /// directly as `read_bit()` automatically buffer another byte, but
+    /// there are legitamet reasons for you to call this function
+    /// directly, such as prebuffering bytes for a large read.
     pub fn load_byte(&mut self) -> Option<u8> {
         //Read the next byte on the file being read
         let next_byte = match self.file_iterator.next() {
@@ -89,6 +130,6 @@ impl BinaryFile {
 
     /// Creates a `Bits` iterator of the file
     pub fn bits(self) -> Bits {
-        Bits::new(self)
+        Bits::from(self)
     }
 }
