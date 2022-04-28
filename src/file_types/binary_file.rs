@@ -112,8 +112,8 @@ impl BinaryFile {
         Some(read)
     }
 
-    /// Reads an arbitrary number of bits into an integer
-    pub fn read_num(&mut self, bits: i32) -> Option<u32> {
+    /// Reads an arbitrary number of bits into an unsigned integer
+    pub fn read_num(&mut self, bits: u32) -> Option<u32> {
         let mut read: u32 = 0;
         //Read required bits
         for _ in 0..bits {
@@ -126,6 +126,31 @@ impl BinaryFile {
             };
         }
         Some(read)
+    }
+
+    /// Reads an arbitrary number of bits into a signed integer, using
+    /// two's complement
+    pub fn read_num_signed(&mut self, bits: u32) -> Option<i32> {
+        let mut read: i32 = 0;
+        let negative = match self.read_bit() {
+            Some(bit) => bit,
+            None => return None,
+        };
+        for _ in 0..(bits - 1) {
+            read *= 2;
+            if negative {
+                read -= match self.read_bit() {
+                    Some(bit) => !bit as i32,
+                    None => return None,
+                };
+            } else {
+                read += match self.read_bit() {
+                    Some(bit) => bit as i32,
+                    None => return None,
+                }
+            }
+        }
+        Some(read - negative as i32)
     }
 
     /// Creates a `Bits` iterator of the file

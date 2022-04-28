@@ -69,4 +69,13 @@ mod tests {
             assert_eq!(bit_iter.next().unwrap(), bit);
         }
     }
+
+    #[test]
+    fn binary_file_signed_read() {
+        let mut bin_f = BinaryFile::open_file(VALID_PATH).unwrap();
+        //Move forward a bit to get a negative result
+        bin_f.read_bit();
+        //Ensure that the read bits match the correct bits
+        assert_eq!(bin_f.read_num_signed(10).unwrap(), -93);
+    }
 }
